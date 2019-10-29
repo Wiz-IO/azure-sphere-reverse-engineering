@@ -1,0 +1,1 @@
+{"Name":"APP_AZURE_LINUX_HELLO","Capabilities":{"SystemTime":true,"Uart":["ISU0"],"SpiMaster":[],"I2cMaster":[],"AllowedConnections":[],"Gpio":[],"WifiConfig":true},"CmdArgs":[],"EntryPoint":"/bin/app","SchemaVersion":1,"ComponentId":"0E3D632E-03B1-48E7-A9C2-3F5063AD0870","TargetApplicationRuntimeVersion":3}
