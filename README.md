@@ -1,2 +1,3 @@
-# azure-sphere-reverse-engineering
-Reverse engineering of Azure Sphere
+# Reverse engineering of Azure Sphere
+
+It sounds weird, doesn't it?
