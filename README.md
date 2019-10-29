@@ -28,7 +28,9 @@ UART Slip to Tun/Tap interface
 
 **REST-API Commands**
 
-Device show-attached
+GET, POST, PUT, DELETE ...
+
+azsphere device show-attached
 * GET http://192.168.35.2/device/security_state
 * Response {"securityState":"SECURE","generalPublicKey":"22...67","deviceIdentityPublicKey":"E1...3E"}
 
