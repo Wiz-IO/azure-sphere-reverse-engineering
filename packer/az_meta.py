@@ -76,7 +76,7 @@ def meta_temp_image(image, flag = TEMP_IMAGE_UnderDevelopment):
 def meta_signature(image, certificate = ''):
     SG  = bytearray()
     SG += struct.pack("HH", SECTION_Signature, 0x18)  
-    SG += 20 * b'\0' # certificate ??????????
+    SG += 20 * b'\0' # certificate, is const for user ??????????
     SG += struct.pack("L", 1) # ECDsa256
     print('SG', HEX(SG))
     image += SG   
