@@ -28,12 +28,10 @@ UART Slip to Tun/Tap interface
 
 **REST-API Commands**
 
-device show-attached
-
-GET http://192.168.35.2/device/security_state
-{"securityState":"SECURE","generalPublicKey":"22...67","deviceIdentityPublicKey":"E1...3E"}
+Device show-attached
+* GET http://192.168.35.2/device/security_state
+* Response {"securityState":"SECURE","generalPublicKey":"22...67","deviceIdentityPublicKey":"E1...3E"}
 
 Get Status
-
-GET https://192.168.35.2/status
-{"uptime":288}
+* GET https://192.168.35.2/status
+* Response {"uptime":288}
