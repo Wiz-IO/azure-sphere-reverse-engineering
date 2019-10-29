@@ -15,9 +15,13 @@ This project is an attempt to **UNIX-LIKE** ( Linux, Mac and Windows ) support p
 
 The image is **asxipfs** file system ( customization of the **cramfs** ) plus Microsoft meta-data footer
 
+Тhere are several "problems" to solve, marked in the code with ???????
+
 ## UPLOADER
 
 The protocol is a simple REST-API client over HTTPS ... https://192.168.35.1/2
+
+As first test - [It is worked](https://raw.githubusercontent.com/Wiz-IO/LIB/master/images/pyAzsphere.jpg) 
 
 UART Slip to Tun/Tap interface
 * BaudRate = 921600
