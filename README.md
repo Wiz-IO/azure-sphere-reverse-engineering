@@ -17,9 +17,8 @@ The image is **asxipfs** file system ( customization of the **cramfs** ) plus Mi
 
 Тhere are several "problems" to solve, marked in the code with ???????
 
-Problem at the end
-* need to sign image: 
-* * ECDsa256( private key from **'cert.PFX'** ).Sign( SHA256( image_data[] ) ) ... python solution
+Problem at the end ... need to sign image data[]
+* ECDsa256( private key from **"cert.PFX"** ).Sign( SHA256( image_data[] ) ) ... python solution
 
 ## UPLOADER
 
