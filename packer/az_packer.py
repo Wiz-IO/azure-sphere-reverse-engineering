@@ -128,7 +128,7 @@ def update_header(image):
 
     crc = binascii.crc32(image)
     #print('CRC', hex(crc), hex(0x63AAB320), '\n')
-    image[32:36] = struct.pack("I", crc) # CRC(3988292384)  # 0xEDB88320    
+    image[32:36] = struct.pack("I", crc)    
 
 def write_image(name, image):
     f = open(name,'wb') 
@@ -143,13 +143,14 @@ update_header(img)
 print('--- IMAGE META DATA ---')
 size = len(img)
 meta_header(img, section_count = 5)
-meta_identity(img, IMAGE_TYPE_Applications, '0E3D632E-03B1-48E7-A9C2-3F5063AD0870', 'unknow data for image_uid') # ??????????
-meta_signature(img, certificate = 'unknow data for certificate') # ??????????
-meta_debug(img, 'APP_AZURE_LINUX_HELLO')
+meta_identity(img, IMAGE_TYPE_Applications, '0E3D632E-03B1-48E7-A9C2-3F5063AD0870') # from json
+meta_signature(img) 
+meta_debug(img, 'APP_AZURE_LINUX_HELLO') # from json
 meta_temp_image(img, TEMP_IMAGE_UnderDevelopment)
 meta_abi_depends(img, [1, 3, 3])
 size = len(img) - size + 4
 img += struct.pack("L", size) 
-meta_hash(img) # ??????????
+
+#meta_hash(img, IMAGE_TYPE_Applications) # ??????????
 
 write_image(join(DIR, 'test_image.image'), img)
