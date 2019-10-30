@@ -17,11 +17,15 @@ The image is **asxipfs** file system ( customization of the **cramfs** ) plus Mi
 
 Тhere are several "problems" to solve, marked in the code with ???????
 
+Problem at the end
+* need to sign image: 
+* * ECDsa256( private key from **'cert.PFX'** ).Sign( SHA256( image_data[] ) ) ... python solution
+
 ## UPLOADER
 
 The protocol is a simple REST-API client over HTTPS ... https://192.168.35.1/2
 
-As first test - [It is worked](https://raw.githubusercontent.com/Wiz-IO/LIB/master/images/pyAzsphere.jpg) 
+As first test - [work...](https://raw.githubusercontent.com/Wiz-IO/LIB/master/images/pyAzsphere.jpg) 
 
 UART Slip to Tun/Tap interface
 * BaudRate = 921600
