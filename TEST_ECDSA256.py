@@ -1,5 +1,6 @@
 """
 https://wiki.openssl.org/index.php/Command_Line_Elliptic_Curve_Operations
+https://www.sslshopper.com/ssl-converter.html
 meta_sign_pfx.pfx >>>> meta_sign_pfx.pem
 
 openssl x509 -in meta_sign_pfx.pem -out certificate.pem
@@ -39,8 +40,8 @@ public  = join(dir, 'certs',    'ecpubkey.pem')     # maybe is ok
 
 f = open(image, 'rb' )
 f.seek( 20480 )         # meta offset
-MSG = f.read( 144 )     # meta or 148 or image or all ??????????
-f.seek( 20628 )         # signature?
+MSG = f.read( 144 )     # meta[] or 148 or image or all ??????????
+f.seek( 20628 )         # signature ????????
 SIG = f.read( 64 )      # read last 64 bytes
 print('SIG', HEX(SIG))
 
