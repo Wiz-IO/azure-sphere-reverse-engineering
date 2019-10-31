@@ -13,8 +13,8 @@ def HEX(s): return hexlify(s).decode("ascii").upper()
 def get_certificate():
     """
     dir = os.path.dirname( sys.argv[0] )
-    f = open(join(dir, '..\\certs\\keystore.bin'), 'rb') # all public keys and thumbprints
-    f.seek(6 * 100 + 80) # index 6, header, public_key[64], thumbprint[20]
+    f = open(join(dir, '..\\certs\\keystore.bin'), 'rb') # all public keys and thumbprints [18]
+    f.seek(6 * 100 + 80) # index 6, header + public_key[64] + thumbprint[20]
     data = f.read(20)
     print('SIGNATURE CERTIFICATE', HEX(data))
     f.close()
