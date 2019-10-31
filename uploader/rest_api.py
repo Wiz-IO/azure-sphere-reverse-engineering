@@ -59,6 +59,7 @@ class Azure:
 
     def get_telemetry(self): # binary
         self.GET( str("/".join([self.url, 'telemetry'])) ) 
+        
     def get_log(self): # binary
         self.GET( str("/".join([self.url, 'log'])) )        
 
