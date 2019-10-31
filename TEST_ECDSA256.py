@@ -39,7 +39,7 @@ public  = join(dir, 'certs',    'ecpubkey.pem')     # maybe is ok
 
 f = open(image, 'rb' )
 f.seek( 20480 )         # meta offset
-MSG = f.read( 144 )     # or 148 or image or all ??????????
+MSG = f.read( 144 )     # meta or 148 or image or all ??????????
 f.seek( 20628 )         # signature?
 SIG = f.read( 64 )      # read last 64 bytes
 print('SIG', HEX(SIG))
