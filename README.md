@@ -33,6 +33,13 @@ UART Slip to Tun/Tap interface
 * StopBits = One
 * Handshake = RequestToSend
 
+**TAP-Windows Adapter V9**
+* [Windows 8 / 10 from OpenVPN](https://openvpn.net/community-downloads/) 
+* [Windows 7](https://github.com/OpenVPN/tap-windows6/files/2037295/Tap-Driver.9.00.00.21.zip)
+* [GitHub](https://github.com/OpenVPN/tap-windows6)
+
+**Unix-like ... soon** ( windows similar ) [hint](http://thgeorgiou.com/posts/2017-03-20-usb-serial-network/)
+
 **REST-API Commands**
 
 GET, POST, PUT, DELETE ...
