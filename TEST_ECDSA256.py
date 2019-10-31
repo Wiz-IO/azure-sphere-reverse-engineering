@@ -6,13 +6,13 @@ meta_sign_pfx.pfx >>>> meta_sign_pfx.pem
 openssl x509 -in meta_sign_pfx.pem -out certificate.pem
 openssl x509 -pubkey -noout -in certificate.pem
 
-ecpubkey.pem
+ecpubkey.pem ... is ok
 -----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7fIzwA0xFB2PP1YzQ0DM2MFp+2fi
 7FZL+KXvWGscP3vBiMoghwHm18d1ahMmOP6YyaAgB0A95cQi5qfoJqS9JA==
 -----END PUBLIC KEY-----
 
-openssl ec -in meta_sign_pfx.pem -out ecprivkey.pem
+openssl ec -in meta_sign_pfx.pem -out ecprivkey.pem ???????????
 -----BEGIN EC PRIVATE KEY-----
 MHcCAQEEIEsZ9LgD8QisVLCEsT604r3sRhm8caaufgJ+SgzZWXWmoAoGCCqGSM49
 AwEHoUQDQgAE7fIzwA0xFB2PP1YzQ0DM2MFp+2fi7FZL+KXvWGscP3vBiMoghwHm
@@ -20,7 +20,7 @@ AwEHoUQDQgAE7fIzwA0xFB2PP1YzQ0DM2MFp+2fi7FZL+KXvWGscP3vBiMoghwHm
 -----END EC PRIVATE KEY-----
 
 pip install ecdsa
-#https://github.com/warner/python-ecdsa
+
 """
 
 
@@ -36,7 +36,8 @@ dir = os.path.dirname( sys.argv[0] )
 
 image   = join(dir, 'packer',   'app.image')        # test image
 private = join(dir, 'certs',    'ecprivkey.pem')    # maybe is wrong
-public  = join(dir, 'certs',    'ecpubkey.pem')     # maybe is ok
+public  = join(dir, 'certs',    'ecpubkey.pem')     # is ok, same as PFX 
+# EDF233C00D31141D8F3F56334340CCD8C169FB67E2EC564BF8A5EF586B1C3F7BC188CA208701E6D7C7756A132638FE98C9A02007403DE5C422E6A7E826A4BD24
 
 f = open(image, 'rb' )
 f.seek( 20480 )         # meta offset
@@ -46,7 +47,10 @@ SIG = f.read( 64 )      # read last 64 bytes
 print('SIG', HEX(SIG))
 
 sk = SigningKey.from_pem( open( private ).read(), hashfunc = hashlib.sha256 )
+print('SK ', HEX( sk.to_string() ) )
+
 vk = VerifyingKey.from_pem( open( public ).read() )
+print('VK ', HEX( vk.to_string() ) )
 
 sig = sk.sign(MSG, hashfunc = hashlib.sha256 ) # for new
 #print('sig', HEX( sig ))
