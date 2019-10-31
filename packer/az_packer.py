@@ -68,7 +68,7 @@ class aNODE():
         if 0 == self.index: 
             print('NODE-ROOT', self.name)
             self.type = NODE_ROOT
-            self.file_size = 0x30 # ??????????
+            self.file_size = 0x30 # ?????????? size of all node bytes in folder
             self.data_size = PAGE_SIZE
             self.name_round_up = 0
             default_header(fs_info)
@@ -76,7 +76,7 @@ class aNODE():
         elif os.path.isdir(self.path):
             print('NODE-DIR', self.name)
             self.type = NODE_DIR 
-            self.file_size = 0x10 # ??????????
+            self.file_size = 0x10 # ?????????? size of all node bytes in folder
 
         elif os.path.isfile(self.path):
             print('NODE-FILE', self.name)
@@ -111,7 +111,7 @@ def create_approot(path, image):
     if False == os.path.isdir(path):
         print('[ERROR] approot path not found')
         exit(1)
-    for PATH, DIRS, FILES in os.walk(path):
+    for PATH, DIRS, FILES in os.walk(path): # this is wrong - must be recursive...
         #print(PATH, DIRS, FILES)
         node = aNODE( PATH )
         for f in FILES:    
