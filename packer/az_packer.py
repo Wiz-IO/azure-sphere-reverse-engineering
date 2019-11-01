@@ -11,6 +11,7 @@ NODE_ROOT = 1
 NODE_DIR  = 2
 NODE_FILE = 3
 
+img = bytearray()
 nodes = []
 fs_info = bytearray()
 data_offset = PAGE_SIZE
@@ -39,20 +40,28 @@ def add_fs_info(info, node):
         offset = node.data_offset
     else:
         offset = len(info) + 4 + node.name_round_up
-        #print('offset', hex(offset))
     offset = offset >> 2
     offset = ( offset << 6 ) & 0xFFFFFFC0
     info += struct.pack("L", offset | name_size)
     if node.type != NODE_ROOT:
         info += node.fs_name   
 
-class aNODE():
+def find_parent(path):
+    parent = os.path.normpath( os.path.join(path, os.pardir) )
+    for node in nodes:
+        if parent == node.path:
+            return node
+    return None
+
+######################################################################################
+
+class INODE():
     def __init__(self, path):
         global nodes, fs_info, data_offset
-        self.index = len(nodes)
-        print('NODE[{}]'.format(self.index), path)
+        self.index = len(nodes)        
         self.path = path
         self.name = os.path.basename(path)
+        print('NODE[{}]'.format(self.index), self.name)
         self.name_round_up = roundUp4( len(self.name) )
         self.fs_name  = bytearray( self.name.encode('utf-8') ) 
         self.fs_name += ( self.name_round_up  - len(self.name) ) * b'\0'
@@ -66,68 +75,72 @@ class aNODE():
         self.data_offset = 0
 
         if 0 == self.index: 
-            print('NODE-ROOT', self.name)
+            #print('NODE-ROOT', self.name)
             self.type = NODE_ROOT
-            self.file_size = 0x30 # ?????????? size of all node bytes in folder
             self.data_size = PAGE_SIZE
             self.name_round_up = 0
             default_header(fs_info)
 
         elif os.path.isdir(self.path):
-            print('NODE-DIR', self.name)
+            #print('NODE-DIR', self.name)
             self.type = NODE_DIR 
-            self.file_size = 0x10 # ?????????? size of all node bytes in folder
 
         elif os.path.isfile(self.path):
-            print('NODE-FILE', self.name)
+            #print('NODE-FILE', self.name)
             self.type = NODE_FILE
             self.file_size = os.path.getsize(path)
             self.data_size = ( int( self.file_size / PAGE_SIZE ) + 1 ) * PAGE_SIZE            
-            print('DATA-OFFSET', hex(data_offset))
-            print('DATA-SIZE  ', hex(self.data_size))
+            #print('DATA-OFFSET', hex(data_offset))
+            #print('DATA-SIZE  ', hex(self.data_size))
             self.data_offset = data_offset 
             data_offset += self.data_size
-
-            print('FILE-SIZE  ', hex(self.file_size))
+            #print('FILE-SIZE  ', hex(self.file_size))
             f = open(self.path,'rb') 
             self.data = bytearray( f.read() ) 
-            print('READ-SIZE  ', hex( len( self.data ) ))
+            #print('READ-SIZE  ', hex( len( self.data ) ))
             f.close()
-
             if self.data[:4] == b'\x7FELF':
                 self.mode = EXE_MODE # 0x83ED
-                print('FILE-EXECUTABLE')
+                #print('FILE-EXECUTABLE')
             else: 
                 self.mode = DEFAULT_FILE_PERM | S_ISREG | S_ISVTX
-
             self.data += (self.data_size - self.file_size) * b'\0'
-            print('TOTL-SIZE  ', hex( len( self.data ) ))
+            #print('TOTL-SIZE  ', hex( len( self.data ) ))
 
         nodes.append( self )
-        add_fs_info( fs_info, self )
-        print()
+
+######################################################################################
 
 def create_approot(path, image):
     if False == os.path.isdir(path):
         print('[ERROR] approot path not found')
         exit(1)
-    for PATH, DIRS, FILES in os.walk(path): # this is wrong - must be recursive...
-        #print(PATH, DIRS, FILES)
-        node = aNODE( PATH )
+    print()
+    print('--- CRETE IMAGE ---')        
+    # CREATE INODES
+    for PATH, DIRS, FILES in os.walk(path): 
+        PATH = PATH.replace('/','\\')
+        node = INODE( PATH ) # make folder
         for f in FILES:    
-            node = aNODE( join(PATH, f) )
-
-    image += fs_info + (PAGE_SIZE - len(fs_info)) * b'\0'
+            node = INODE( join(PATH, f) ) # make file
+    # UPDATE FOLDER SIZE
     for node in nodes: 
-        if hasattr(node,'data'): 
-            image += node.data # add images    
-
-def update_header(image):
+        parent = find_parent(node.path)
+        if parent:             
+            parent.file_size += 12 + node.name_round_up
+            #print('folder', parent.name, 'add size =', parent.file_size)
+    # ADD INODES
+    for node in nodes: 
+        add_fs_info(fs_info, node)
+    image += fs_info + (PAGE_SIZE - len(fs_info)) * b'\0'    
+    # ADD DATA
+    for node in nodes: 
+        if hasattr(node, 'data'): 
+            image += node.data       
+    # UPDATE HEADER
     image[ 4: 8] = struct.pack("I", len(image))  
     image[44:48] = struct.pack("I", len(nodes)) 
-
     crc = binascii.crc32(image)
-    #print('CRC', hex(crc), hex(0x63AAB320), '\n')
     image[32:36] = struct.pack("I", crc)    
 
 def write_image(name, image):
@@ -135,22 +148,9 @@ def write_image(name, image):
     f.write(image) 
     f.close()  
 
-img = bytearray()
+######################################################################################
+
 DIR = os.path.dirname( sys.argv[0] )
-create_approot(join(DIR, 'approot'), img) # TEST IMAGE
-update_header(img)
-
-print('--- IMAGE META DATA ---')
-size = len(img)
-meta_header(img, section_count = 5)
-meta_identity(img, IMAGE_TYPE_Applications, '0E3D632E-03B1-48E7-A9C2-3F5063AD0870') # from json
-meta_signature(img) 
-meta_debug(img, 'APP_AZURE_LINUX_HELLO') # from json
-meta_temp_image(img, TEMP_IMAGE_UnderDevelopment)
-meta_abi_depends(img, [1, 3, 3])
-size = len(img) - size + 4
-img += struct.pack("L", size) 
-
-#meta_hash(img, IMAGE_TYPE_Applications) # ??????????
-
+create_approot(join(DIR, 'approot'), img) 
+img += create_manifest()
 write_image(join(DIR, 'test_image.image'), img)

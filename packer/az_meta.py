@@ -10,11 +10,11 @@ import ecdsa
 
 def HEX(s): return hexlify(s).decode("ascii").upper()
 
-def get_certificate():
+def thumbprint():
     """
     dir = os.path.dirname( sys.argv[0] )
-    f = open(join(dir, '..\\certs\\keystore.bin'), 'rb') # all public keys and thumbprints [18]
-    f.seek(6 * 100 + 80) # index 6, header + public_key[64] + thumbprint[20]
+    f = open(join(dir, '..\\certs\\keystore.bin'), 'rb') # all keys
+    f.seek(6 * 100 + 80) # random ? 6
     data = f.read(20)
     print('SIGNATURE CERTIFICATE', HEX(data))
     f.close()
@@ -28,7 +28,7 @@ def get_certificate():
 ##################################################################################
 
 def meta_header(image, section_count = 4):
-    image += struct.pack("I", 0x4D345834) 
+    image += struct.pack("I", 0x4D345834) # 1295276084
     image += struct.pack("I", section_count)
 
 ##################################################################################
@@ -36,10 +36,10 @@ def meta_header(image, section_count = 4):
 # unix_date_64         [  8]
 # application_name     [ 32]
 ##################################################################################
-def meta_debug(image, application_name):
+def meta_debug(image, application_name, build_date):
     DB  = bytearray()
     DB += struct.pack("HH", SECTION_Debug, 40)
-    DB += struct.pack("LL", int(time.time()), 0) # 0x5DA46DCD, Mon, 14 Oct 2019 12:45:01 GMT
+    DB += struct.pack("LL", build_date, 0) # int(time.time()), 0
     DB += application_name[:32].encode('utf-8')
     size = len(DB)
     if size < 44: DB += (44 - size) * b'\0' 
@@ -95,7 +95,7 @@ def meta_signature(image, certificate = b''):
     SG  = bytearray()
     SG += struct.pack("HH", SECTION_Signature, 0x18)  
     if certificate == b'':
-        SG += get_certificate() # certificate from keystore
+        SG += thumbprint() # certificate from keystore
     else: 
         SG += certificate
     SG += struct.pack("L", 1) # ECDsa256
@@ -114,19 +114,27 @@ def meta_abi_depends(image, data):
     image += ND  
 
 ##################################################################################
-# HASH SIGNATURE -------> not ready
+# SIGNATURE -------> not ready
 # pip install ecdsa
 ##################################################################################
-def meta_hash(image, type):
-    HASH = bytearray()
 
-    m = hashlib.sha256()
-    m.update( image )
-    print( m.digest() ,len(m.digest()))
-    print('HASH', HEX( m.digest() ))
+def create_manifest(    
+            app_name = 'APP_AZURE_LINUX_HELLO', 
+            app_uid = '0E3D632E-03B1-48E7-A9C2-3F5063AD0870',
+            app_depends = [1, 3, 3] ):
 
-    #PFX.SIGN() ????????????????
-    #image += HASH      
+    print()
+    print('--- CALCULATE SIGNATURE ---')
 
-
-
+    print()
+    print('--- ADD IMAGE META DATA ---')
+    bin = bytearray()
+    meta_header(bin)
+    meta_identity(bin, IMAGE_TYPE_Applications, app_uid) 
+    meta_signature(bin) 
+    meta_debug(bin, app_name, H.BuildDate) 
+    meta_temp_image(bin, TEMP_IMAGE_UnderDevelopment)
+    meta_abi_depends(bin, app_depends)  
+    bin += struct.pack("L", len(bin) + 4)  
+    bin += F.Signature
+    return bin
