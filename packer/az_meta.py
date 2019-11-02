@@ -1,26 +1,22 @@
-# AZSPHERE IMAGE PACKER 2020 Georgi Angelov
+##################################################################################
+#   AZSPHERE IMAGE PACKER 2020 Georgi Angelov
+#
+#   Dependency:
+#       ecdsa
+##################################################################################
 
 import os, sys, struct, binascii, time, uuid, hashlib
 from os.path import join
 from uuid import UUID
 from binascii import hexlify
 from az_const import *
-
-import ecdsa
+from ecdsa import SigningKey, VerifyingKey, BadSignatureError
 
 def HEX(s): return hexlify(s).decode("ascii").upper()
 
-def get_certificate():
-    """
-    dir = os.path.dirname( sys.argv[0] )
-    f = open(join(dir, '..\\certs\\keystore.bin'), 'rb') # all public keys and thumbprints [18]
-    f.seek(6 * 100 + 80) # index 6, header + public_key[64] + thumbprint[20]
-    data = f.read(20)
-    print('SIGNATURE CERTIFICATE', HEX(data))
-    f.close()
-    """
+def thumbprint():
     #https://docs.microsoft.com/en-us/azure-sphere/reference/azsphere-image
-    # Section: Signature - Cert: THUMBPRINT
+    # Section: Signature - Cert: PRIVATE KEY THUMBPRINT
     return b'\xA8\xD5\xCC\x69\x58\xF4\x87\x10\x14\x0D\x7A\x26\x16\x0F\xC1\xCF\xC3\x1F\x5D\xF0'
 
 ##################################################################################
@@ -28,7 +24,7 @@ def get_certificate():
 ##################################################################################
 
 def meta_header(image, section_count = 4):
-    image += struct.pack("I", 0x4D345834) 
+    image += struct.pack("I", 0x4D345834) # 1295276084
     image += struct.pack("I", section_count)
 
 ##################################################################################
@@ -36,10 +32,10 @@ def meta_header(image, section_count = 4):
 # unix_date_64         [  8]
 # application_name     [ 32]
 ##################################################################################
-def meta_debug(image, application_name):
+def meta_debug(image, application_name, build_date):
     DB  = bytearray()
     DB += struct.pack("HH", SECTION_Debug, 40)
-    DB += struct.pack("LL", int(time.time()), 0) # 0x5DA46DCD, Mon, 14 Oct 2019 12:45:01 GMT
+    DB += struct.pack("LL", build_date, 0) 
     DB += application_name[:32].encode('utf-8')
     size = len(DB)
     if size < 44: DB += (44 - size) * b'\0' 
@@ -95,10 +91,10 @@ def meta_signature(image, certificate = b''):
     SG  = bytearray()
     SG += struct.pack("HH", SECTION_Signature, 0x18)  
     if certificate == b'':
-        SG += get_certificate() # certificate from keystore
+        SG += thumbprint() 
     else: 
         SG += certificate
-    SG += struct.pack("L", 1) # ECDsa256
+    SG += struct.pack("L", 1) # type: ECDsa256 = 1
     print('','SG', HEX(SG))
     image += SG   
 
@@ -114,19 +110,41 @@ def meta_abi_depends(image, data):
     image += ND  
 
 ##################################################################################
-# HASH SIGNATURE -------> not ready
+# SIGNATURE 
 # pip install ecdsa
 ##################################################################################
-def meta_hash(image, type):
-    HASH = bytearray()
 
-    m = hashlib.sha256()
-    m.update( image )
-    print( m.digest() ,len(m.digest()))
-    print('HASH', HEX( m.digest() ))
+def calculate_signatute(data):
+    print()
+    print('--- CALCULATE SIGNATURE ---')
+    DIR = os.path.dirname( sys.argv[0] )
+    PRIVATE = join(DIR, '..', 'certs', 'ecprivkey.pem')
+    PUBLIC  = join(DIR, '..', 'certs', 'ecpubkey.pem')
+    sk = SigningKey.from_pem( open( PRIVATE ).read(), hashfunc = hashlib.sha256)
+    vk = VerifyingKey.from_pem( open( PUBLIC ).read() )
+    signature = sk.sign(data, hashfunc = hashlib.sha256)
+    try:
+        vk.verify(signature, data, hashfunc = hashlib.sha256 )
+        print("    signature ok") 
+    except BadSignatureError:
+        print ("[ERROR] BAD SIGNATURE")  
+        exit(1) 
+    return signature   
 
-    #PFX.SIGN() ????????????????
-    #image += HASH      
-
-
-
+def create_meta_data(image, # params from json   
+            app_name = 'APP_AZURE_LINUX_HELLO', 
+            app_uid = '0E3D632E-03B1-48E7-A9C2-3F5063AD0870',
+            app_depends = [1, 3, 3],
+            app_build_date = None ):
+    print()
+    print('--- ADD IMAGE META DATA ---')
+    meta_header(image)
+    meta_identity(image, IMAGE_TYPE_Applications, app_uid) 
+    meta_signature(image) 
+    if None == app_build_date: app_build_date = int(time.time())
+    meta_debug(image, app_name, app_build_date) 
+    meta_temp_image(image, TEMP_IMAGE_UnderDevelopment)
+    meta_abi_depends(image, app_depends)  
+    image += struct.pack("L", len(image) + 4)  
+    image += calculate_signatute(image)
+    return image

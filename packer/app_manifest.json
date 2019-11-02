@@ -1,0 +1,24 @@
+{
+    "Name": "", 
+    "Capabilities": {
+        "AllowedTcpServerPorts": [], 
+        "SystemTime": true, 
+        "Uart": [
+            "$AVNET_AESMS_ISU0_UART"
+        ], 
+        "AllowedUdpServerPorts": [], 
+        "SpiMaster": [], 
+        "I2cMaster": [], 
+        "Gpio": [
+            "$AVNET_AESMS_PIN11_GPIO8", 
+            "$AVNET_AESMS_PIN12_GPIO9", 
+            "$AVNET_AESMS_PIN13_GPIO10"
+        ], 
+        "AllowedConnections": [], 
+        "WifiConfig": true
+    }, 
+    "CmdArgs": [], 
+    "EntryPoint": "", 
+    "SchemaVersion": 1, 
+    "ComponentId": "9FAFA94E-3CFA-4B1D-8A13-50B82539A9B7"
+}
