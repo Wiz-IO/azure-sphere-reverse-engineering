@@ -1,7 +1,13 @@
 ############################################################################
+#   AZSPHERE IMAGE PACKER 2020 Georgi Angelov
+#
+#   Used code: 
+#       https://github.com/gonewind73/pytuntap/blob/master/tuntap.py
+#
 #   Dependency:
 #       Windows: TAP Driver tap0901 - TAP-Windows Adapter V9
 #       pySerial
+#
 ############################################################################
 
 import os, sys, struct, time, socket, threading, subprocess, logging, random
