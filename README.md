@@ -15,10 +15,8 @@ Version: 0.0.2
 ## SOURCE CODES
 * Here is experimental source codes
 * The "problems" is marked in the code with ???????
-* RUN: TEST_ECDSA256.py
-* RUN: packer / az_packer.py
-* RUN: packer / az_json.py 
-* RUN: uploader / win_test.py
+* * packer/az_packer.py
+* * uploader/win_test.py
 
 ## PACKER
 
