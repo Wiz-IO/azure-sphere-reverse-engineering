@@ -24,11 +24,11 @@ Version: 0.0.2
 * * packer/az_packer.py
 * * uploader/win_test.py
 
-## azsphere PACKER
+## THE IMAGE PACKER
 
 The image is **asxipfs** file system ( customization of the **cramfs** ) plus Microsoft meta-data footer
 
-## azsphere UPLOADER
+## THE IMAGE UPLOADER
 
 The protocol is a simple REST-API client over HTTPS ... https://192.168.35.1/2
 
