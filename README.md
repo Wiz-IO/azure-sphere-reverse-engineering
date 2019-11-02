@@ -26,7 +26,7 @@ Version: 0.0.2
 
 ## THE IMAGE PACKER
 
-The image is **asxipfs** file system ( customization of the **cramfs** ) plus Microsoft meta-data footer
+The image is **asxipfs** file system ( customization of the [**cramfs**](https://github.com/npitre/cramfs-tools/blob/master/mkcramfs.c) ) plus Microsoft meta-data footer
 
 ## THE IMAGE UPLOADER
 
