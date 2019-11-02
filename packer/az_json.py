@@ -1,3 +1,10 @@
+##################################################################################
+#   AZSPHERE IMAGE PACKER 2020 Georgi Angelov
+#
+#   Create approot json manifest
+#       
+##################################################################################
+
 import os, sys, json, shutil, uuid
 from uuid import UUID
 from os.path import join, normpath, basename
@@ -47,20 +54,28 @@ def set_default_value(jsn, key, value):
         jsn[key] = value
 
 def create_json(manifest, board, approot):
+    print()
+    print('--- CREATE APPROOT MANIFEST ---')
     dict = create_perifery(board)
     manifest = load_json( manifest )
+
     # REPLACE PERIFERY
     json_replace(manifest['Capabilities']['Gpio'], dict)
     json_replace(manifest['Capabilities']['Uart'], dict)
     json_replace(manifest['Capabilities']['SpiMaster'], dict)
     json_replace(manifest['Capabilities']['I2cMaster'], dict)
+
     # CHECK VALUES
-    set_default_value(manifest, 'Name', 'APPLICATION')
+    set_default_value(manifest, 'Name', 'PROGRAM')
     set_default_value(manifest, 'ComponentId', str(uuid.uuid4()).upper())
     set_default_value(manifest, 'EntryPoint', '/bin/app')
 
-    print(manifest)
-    #SAVE TO APPROOT
+    #SAVE MANIFEST TO APPROOT
+    #print(manifest)
+
+    print('APPLICATION:', manifest['Name'], manifest['ComponentId'])
+    return manifest
+
 
 if __name__ == "__main__":
     DIR = os.path.dirname( sys.argv[0] )
