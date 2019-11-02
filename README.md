@@ -19,10 +19,10 @@ Version: 0.0.2
 
 ## THE SOURCE CODES
 * Here is experimental source codes, I use Python to integrate this to [Azure Sphere - PlatformIO](https://github.com/Wiz-IO/platform-azure)
-* The "problems" is marked in the source code with ???????
+* The **problems** is marked in the source code with **???????**
 * Executables:
 * * packer/az_packer.py
-* * uploader/win_test.py
+* * uploader/win_test.py ( next will make unix-like interface )
 
 ## THE IMAGE PACKER
 
