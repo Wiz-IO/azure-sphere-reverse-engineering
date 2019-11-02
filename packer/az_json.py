@@ -6,34 +6,59 @@ def error(msg):
    print('[ERROR]', msg); 
    exit(1) 
 
-def create_json(manifest, hardware, approot):
-    f = open(manifest, 'r')
-    u = json.load( f )
-    f.close()
-    print(u)
+def load_json(file_name, mode = 'r'):
+    f = open(file_name, mode)
+    j = json.load( f )
+    f.close()  
+    return j
 
-    f = open(hardware, 'r+')
-    hj = json.load( f )
-    f.close()
+def load_hardware():
+    return load_json( join(os.path.dirname(sys.argv[0] ), '..', 'json', 'mt3620.json') )
 
-    if 'Name' in u:
-        if '' == u['Name']: error('Manifest.Name is empty'); 
+def load_board(name):
+    return load_json( join(os.path.dirname(sys.argv[0] ), '..', 'json', name + '.json') )
+
+def get_AppManifestValue(name, h):
+    for item in h['Peripherals']:
+        if item['Name'] == name: 
+            return item['AppManifestValue']
+    error('value not exist')
+
+def create_perifery(board):
+    d = {}
+    hardware = load_hardware()
+    board = load_board(board)
+    for item in board['Peripherals']:
+        map = get_AppManifestValue(item['Mapping'], hardware)
+        d[ '$' + item['Name'] ] = map
+    return d
+
+def json_replace(key, dict):
+    i = 0
+    for item in key: 
+        key[i] = dict[item]
+        i+=1    
+
+def create_json(manifest, board, approot):
+    dict = create_perifery(board)
+    manifest = load_json( manifest )
+    json_replace(manifest['Capabilities']['Gpio'], dict)
+    json_replace(manifest['Capabilities']['Uart'], dict)
+    json_replace(manifest['Capabilities']['SpiMaster'], dict)
+    json_replace(manifest['Capabilities']['I2cMaster'], dict)
+
+    print(manifest)
+
+    if 'Name' in manifest:
+        if '' == manifest['Name']: error('Manifest.Name is empty'); 
     else:
         error('Manifest.Name missing'); 
 
-    if 'ComponentId' in u: uid = UUID( u['ComponentId'], version = 4 )
+    if 'ComponentId' in manifest: uid = UUID( u['ComponentId'], version = 4 )
 
 
-
-
-    #f_dst = open(manifest, 'w+')
-    #f.seek(0)
-    #json.dump(data, f, indent=4) 
-    #f.truncate()  
-
-
-DIR = os.path.dirname( sys.argv[0] )
-HARDWARE = join(DIR, '..', 'json', 'mt3620.json')#.replace('/','\\')
-APPROOT = join(DIR, 'approot')#.replace('/','\\')
-MANIFEST = join(DIR, 'app_manifest.json')#.replace('/','\\')
-create_json(MANIFEST, HARDWARE, APPROOT)
+if __name__ == "__main__":
+    DIR = os.path.dirname( sys.argv[0] )
+    APPROOT = join(DIR, 'approot')
+    MANIFEST = join(DIR, 'app_manifest.json')
+    create_json(MANIFEST, 'avnet_aesms_mt3620', APPROOT)
