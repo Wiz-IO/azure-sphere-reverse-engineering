@@ -14,7 +14,7 @@ Version: 0.0.2
 
 ## SOURCE CODES
 * Here is experimental source codes
-* The "problems" is marked in the code with ???????
+* The "problems" is marked in the source code with ???????
 * * packer/az_packer.py
 * * uploader/win_test.py
 
