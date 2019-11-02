@@ -39,23 +39,28 @@ def json_replace(key, dict):
         key[i] = dict[item]
         i+=1    
 
+def set_default_value(jsn, key, value):
+    if key in jsn: # else new
+        if '' == jsn[key]:
+            jsn[key] = value 
+    else:
+        jsn[key] = value
+
 def create_json(manifest, board, approot):
     dict = create_perifery(board)
     manifest = load_json( manifest )
+    # REPLACE PERIFERY
     json_replace(manifest['Capabilities']['Gpio'], dict)
     json_replace(manifest['Capabilities']['Uart'], dict)
     json_replace(manifest['Capabilities']['SpiMaster'], dict)
     json_replace(manifest['Capabilities']['I2cMaster'], dict)
+    # CHECK VALUES
+    set_default_value(manifest, 'Name', 'APPLICATION')
+    set_default_value(manifest, 'ComponentId', str(uuid.uuid4()).upper())
+    set_default_value(manifest, 'EntryPoint', '/bin/app')
 
     print(manifest)
-
-    if 'Name' in manifest:
-        if '' == manifest['Name']: error('Manifest.Name is empty'); 
-    else:
-        error('Manifest.Name missing'); 
-
-    if 'ComponentId' in manifest: uid = UUID( u['ComponentId'], version = 4 )
-
+    #SAVE TO APPROOT
 
 if __name__ == "__main__":
     DIR = os.path.dirname( sys.argv[0] )
