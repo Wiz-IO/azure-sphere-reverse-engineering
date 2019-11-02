@@ -26,7 +26,7 @@ Version: 0.0.2
 
 ## THE IMAGE PACKER
 
-The image is **asxipfs** file system ( custom [**cramfs**](https://github.com/npitre/cramfs-tools/blob/master/mkcramfs.c) ) plus Microsoft meta-data and signature
+The image is **asxipfs** file system ( custom [**cramfs**](https://github.com/npitre/cramfs-tools/blob/master/mkcramfs.c) ) plus Microsoft [meta-data and signature](https://github.com/Wiz-IO/azure-sphere-reverse-engineering/blob/master/packer/az_meta.py)
 
 ## THE IMAGE UPLOADER
 
