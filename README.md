@@ -10,15 +10,17 @@ This project is an attempt to **UNIX-LIKE** ( Linux, Mac and Windows ) support p
 * [Application Image Packer](https://github.com/Wiz-IO/azure-sphere-reverse-engineering/tree/master/packer)
 * [Uploader](https://github.com/Wiz-IO/azure-sphere-reverse-engineering/tree/master/uploader)
 
+## SOURCE CODES
+* Here is experimental source codes
+* The "problems" is marked in the code with ???????
+* RUN: TEST_ECDSA256.py
+* RUN: packer / az_packer.py
+* RUN: packer / az_json.py 
+* RUN: uploader / win_test.py
 
 ## PACKER
 
 The image is **asxipfs** file system ( customization of the **cramfs** ) plus Microsoft meta-data footer
-
-Тhere are several "problems" to solve, marked in the code with ???????
-
-Problem at the end ... need to sign image data[]
-* ECDsa256( private key from **"cert.PFX"** ).Sign( SHA256( image_data[] ) ) ... python solution
 
 ## UPLOADER
 
