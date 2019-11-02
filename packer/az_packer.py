@@ -149,9 +149,18 @@ def write_image(name, image):
 
 ######################################################################################
 
-DIR = os.path.dirname( sys.argv[0] )
-APPROOT = join(DIR, 'approot')
-#create_json(DIR, APPROOT)
-create_approot(APPROOT, img) 
-create_meta_data(img)
-write_image(join(DIR, 'test_image.image'), img)
+if __name__ == "__main__":
+    DIR = os.path.dirname( sys.argv[0] )
+    APPROOT = join(DIR, 'approot')
+    MANIFEST = join(DIR, 'app_manifest.json')
+
+    manifest = create_json(MANIFEST, 'avnet_aesms_mt3620', APPROOT)
+
+    create_approot(APPROOT, img) 
+
+    create_meta_data(img, 
+        app_name = manifest['Name'], 
+        app_uid  = manifest['ComponentId'],
+        app_depends = [1, 3, 3]) # sysroot
+
+    write_image(join(DIR, 'test_image.image'), img)
