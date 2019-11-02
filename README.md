@@ -12,17 +12,23 @@ Version: 0.0.2
 * [Application Image Packer](https://github.com/Wiz-IO/azure-sphere-reverse-engineering/tree/master/packer)
 * [Uploader](https://github.com/Wiz-IO/azure-sphere-reverse-engineering/tree/master/uploader)
 
+## Base codes and Dependency
+* pySerial
+* ecdsa
+* [pytuntap](https://github.com/gonewind73/pytuntap/blob/master/tuntap.py)
+
 ## SOURCE CODES
 * Here is experimental source codes
 * The "problems" is marked in the source code with ???????
+* Executables:
 * * packer/az_packer.py
 * * uploader/win_test.py
 
-## PACKER
+## azsphere PACKER
 
 The image is **asxipfs** file system ( customization of the **cramfs** ) plus Microsoft meta-data footer
 
-## UPLOADER
+## azsphere UPLOADER
 
 The protocol is a simple REST-API client over HTTPS ... https://192.168.35.1/2
 
