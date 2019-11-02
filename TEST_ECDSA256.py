@@ -1,3 +1,5 @@
+# AZSPHERE IMAGE PACKER 2020 Georgi Angelov
+
 """
 https://wiki.openssl.org/index.php/Command_Line_Elliptic_Curve_Operations
 https://www.sslshopper.com/ssl-converter.html
@@ -23,8 +25,6 @@ pip install ecdsa
 
 """
 
-
-
 import os, sys, binascii, hashlib, ecdsa
 from binascii import hexlify
 from os.path import join
@@ -34,33 +34,34 @@ from ecdsa import SigningKey, VerifyingKey, BadSignatureError
 def HEX(s): return hexlify(s).decode("ascii").upper()
 dir = os.path.dirname( sys.argv[0] )
 
-image   = join(dir, 'packer',   'app.image')        # test image
-private = join(dir, 'certs',    'ecprivkey.pem')    # maybe is wrong
-public  = join(dir, 'certs',    'ecpubkey.pem')     # is ok, same as PFX 
-# EDF233C00D31141D8F3F56334340CCD8C169FB67E2EC564BF8A5EF586B1C3F7BC188CA208701E6D7C7756A132638FE98C9A02007403DE5C422E6A7E826A4BD24
+image   = join(dir, 'packer',   'app.image')        # tested image
+private = join(dir, 'certs',    'ecprivkey.pem')    # is OK
+public  = join(dir, 'certs',    'ecpubkey.pem')     # is OK, same as PFX 
 
-f = open(image, 'rb' )
-f.seek( 20480 )         # meta offset
-MSG = f.read( 144 )     # meta[] or 148 or image or all ??????????
-f.seek( 20628 )         # signature ????????
-SIG = f.read( 64 )      # read last 64 bytes
-print('SIG', HEX(SIG))
+f = open(image, 'rb' )            
+MSG = f.read( 20628 )   
+f.seek( 20628 ) # signature offset is last 64 bytes
+old_signature = f.read( 64 )
+print('OLD SIGNATURE', HEX(old_signature))
 
-sk = SigningKey.from_pem( open( private ).read(), hashfunc = hashlib.sha256 )
-print('SK ', HEX( sk.to_string() ) )
-
+sk = SigningKey.from_pem( open( private ).read(), hashfunc = hashlib.sha256)
+#print('SK ', HEX( sk.to_string() ) )
 vk = VerifyingKey.from_pem( open( public ).read() )
-print('VK ', HEX( vk.to_string() ) )
+#print('VK ', HEX( vk.to_string() ) )
 
-sig = sk.sign(MSG, hashfunc = hashlib.sha256 ) # for new
-#print('sig', HEX( sig ))
-
+new_signature = sk.sign(MSG, hashfunc = hashlib.sha256) 
 
 try:
-    vk.verify(str(SIG), MSG)
-    print ("app good signature")
+    vk.verify(old_signature, MSG, hashfunc = hashlib.sha256 )
+    print ("verify old signature: OK") # YES !!!
 except BadSignatureError:
-    print ("APP BAD SIGNATURE") # <-------------    
+    print ("APP BAD SIGNATURE")    
+
+try:
+    vk.verify(new_signature, MSG, hashfunc = hashlib.sha256 )
+    print ("verify new signature: OK") # YES !!!
+except BadSignatureError:
+    print ("NEW BAD SIGNATURE")  
 
 
 
