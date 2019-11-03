@@ -2,7 +2,7 @@
 
 It sounds weird, doesn't it?
 
-This project is an attempt to **UNIX-LIKE** ( Linux, Mac and Windows ) support platforms for Azure Sphere boards...
+This project is an attempt to [**UNIX-LIKE**](https://techcommunity.microsoft.com/t5/Internet-of-Things/Plan-for-changes-coming-to-the-Azure-Sphere-SDK-in-next-release/ba-p/916078) ( Linux, Mac and Windows ) support platforms for Azure Sphere boards...
 
 Version: 0.0.3
 
