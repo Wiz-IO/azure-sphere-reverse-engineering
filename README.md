@@ -37,6 +37,8 @@ The protocol is a simple REST-API client over HTTPS ... https://192.168.35.1/2
 
 As first test - [work...](https://raw.githubusercontent.com/Wiz-IO/LIB/master/images/pyAzsphere.jpg) 
 
+## TAP - TUN - SLIP
+
 UART Slip to Tun/Tap interface
 * BaudRate = 921600
 * Parity = None
