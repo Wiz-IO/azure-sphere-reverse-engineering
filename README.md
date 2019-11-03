@@ -23,6 +23,9 @@ Version: 0.0.3
 * Executables:
 * * packer/az_packer.py
 * * uploader/win_test.py ( next will make unix-like interface )
+* * uploader/rest_api.py 
+
+_To test rest_api.py ( stand alone ) you need installed Microsoft SDK or tap-tun-slip interface_
 
 ## THE IMAGE PACKER
 
