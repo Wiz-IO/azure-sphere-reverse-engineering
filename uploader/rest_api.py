@@ -6,8 +6,8 @@
 #       https://requests.kennethreitz.org/en/master/user/advanced/
 #       https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
 #
-#   To test this you need 
-#       installed Microsoft SDK or tap-tun-slip interface
+#   To test this unit ( stand alone ) you need installed Microsoft SDK 
+#   or tap-tun-slip interface
 #
 #######################################################################################################
 
