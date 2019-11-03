@@ -1,5 +1,5 @@
 ############################################################################
-#   AZSPHERE IMAGE PACKER 2020 Georgi Angelov
+#   AZSPHERE IMAGE UPLOADER 2020 Georgi Angelov
 #
 #   Used code: 
 #       https://github.com/gonewind73/pytuntap/blob/master/tuntap.py
