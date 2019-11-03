@@ -48,7 +48,10 @@ UART Slip to Tun/Tap interface
 
 **Unix-like ... soon** ( windows similar ) [hint](http://thgeorgiou.com/posts/2017-03-20-usb-serial-network/)
 
-**REST-API Commands**
+
+
+
+## REST-API Commands
 
 GET, POST, PUT, DELETE ...
 
