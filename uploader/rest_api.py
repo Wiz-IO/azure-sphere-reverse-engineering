@@ -1,20 +1,25 @@
-############################################################################
-# THE PROJECT IS IN PROGRESS...
+#######################################################################################################
+#   AZSPHERE IMAGE UPLOADER 2020 Georgi Angelov
 #
 #   Dependency:
 #       requests
+#       https://requests.kennethreitz.org/en/master/user/advanced/
+#       https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
 #
-# https://requests.kennethreitz.org/en/master/user/advanced/
-# https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
-############################################################################
+#   To test this you need 
+#       installed Microsoft SDK or tap-tun-slip interface
+#
+#######################################################################################################
 
 from __future__ import print_function
 import os, time, requests, urllib3
+from requests import ConnectTimeout
 urllib3.disable_warnings()
 from os.path import join
 
 DEBUG           = True
-TEST_IMAGE      = '1640b7fb-4924-46df-ae72-38998065455b'
+TEST_IMAGE      = '9fafa94e-3cfa-4b1d-8a13-50b82539a9b'
+DEFAULT_TIMEOUT = 10
 
 def ERROR(message):
     print("[ERROR] {}".format(message))
@@ -27,21 +32,24 @@ def ASSERT(flag, message):
 
 class Azure:
     def __init__(self):
-        self.dir    = os.path.dirname( os.path.realpath(__file__) )
-        self.cert   = (join(self.dir, 'gatewayd-server-cert.pem'), join(self.dir, 'gatewayd-server-key.pem'))
-        self.url    = 'https://192.168.35.2'
-        self.ses    = requests.Session()
+        self.dir  = os.path.dirname( os.path.realpath(__file__) )
+        self.cert = join(self.dir, '..', 'certs', 'server-cert.pem'), join(self.dir, '..', 'certs', 'server-key.pem')
+        self.url  = 'https://192.168.35.2'
+        self.ses  = requests.Session()
 
     def GET(self, URL, debug = DEBUG):
-        if debug:
-            print( '[GET] ' + URL )         
-        r = self.ses.get(URL, cert=self.cert, verify=False)
-        ASSERT( 200 == r.status_code, "[GET] Response Code: {}".format( r.status_code ) )    
-        if debug:
-            print( '[RESPONSE] ', end='' )
-            print( r.text.encode(encoding='UTF-8', errors='replace'), end='' )
-            print(  )
-            #time.sleep(0.01)
+        if debug: print( '[GET] ' + URL )  
+        try:       
+            r = self.ses.get(URL, cert=self.cert, verify=False, timeout = DEFAULT_TIMEOUT)
+        except ConnectTimeout:
+            ERROR('Request Timeout')
+        ASSERT( 200 == r.status_code, "[GET] Response Code: {}".format( r.status_code ) )  
+        time.sleep(0.1)  
+        if debug:            
+            print()
+            print('[RESPONSE] ', end='')
+            print(r.text.encode(encoding='UTF-8', errors='replace'), end='')
+            print(  )        
         return r.text         
 
     def get_dev_id(self):
@@ -59,7 +67,7 @@ class Azure:
 
     def get_telemetry(self): # binary
         self.GET( str("/".join([self.url, 'telemetry'])) ) 
-        
+
     def get_log(self): # binary
         self.GET( str("/".join([self.url, 'log'])) )        
 
@@ -70,8 +78,14 @@ class Azure:
         print(r.text)
         return r.text         
 
+    def upload_image(self, file_name): # not tested
+        URL = "/".join([self.url, 'app', 'image', guid])
+        d = open(file_name, 'rb').read()
+        h = { "Content-Type":"application/octet-stream", }
+        r = self.s.put(URL, cert=self.cert, verify=False, data=d, headers=h)        
 
-#a = Azure()
-#a.get_dev_status()
-#a.get_dev_id()
-#a.get_app_status() 
+if __name__ == "__main__":
+    a = Azure()
+    a.get_dev_status()
+    a.get_dev_id()
+    a.get_app_status() 

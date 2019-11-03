@@ -9,7 +9,7 @@
 #       pySerial
 #
 ############################################################################
-
+from __future__ import print_function
 import os, sys, struct, time, socket, threading, subprocess, logging, random
 from ctypes import *
 from ctypes.wintypes import *
@@ -253,11 +253,7 @@ class WindowsTap(Tap):
         subprocess.check_call(sargs, shell = True)
 
     def close(self):
-        ctypes.windll.kernel32.CloseHandle(self.read_overlapped)
-        ctypes.windll.kernel32.CloseHandle(self.write_overlapped)
-        err = ctypes.windll.kernel32.CloseHandle(self.handle)
-        if 0 == err: raise ctypes.WinError()
-        print('close', self.handle, err)
+        err = ctypes.windll.kernel32.CloseHandle(self.handle)       
 
     def read(self): # return bufer
         self.read_lock.acquire()
@@ -271,7 +267,7 @@ class WindowsTap(Tap):
             lastError = GetLastError()
             if lastError == 997: # ERROR_IO_PENDING
                 err = GetOverlappedResult(self.handle, self.read_overlapped, byref(RD), True)
-                if 0 == err: raise ctypes.WinError()
+                #if 0 == err: raise ctypes.WinError()
                 RESULT = BUFFER[:RD.value]
             elif lastError == 0:
                 RESULT = BUFFER
@@ -360,8 +356,10 @@ class WindowsTap(Tap):
                 if None == p: continue  
                 s = slipDriver.send(p)     
                 self.this.serial.write(s)   
-                ###print ( "[SERIAL-PC] >>>", PrintHex(s))                    
-            print('[SpipRead] END')
+                ###print ( "[SERIAL-PC] >>>", PrintHex(s)) 
+                #time.sleep(0.1) # ?     
+              
+            #print('[Spip-Read] END')
             self.this.isSRunnig == False
 
     class SlipWrite(threading.Thread):
@@ -376,16 +374,16 @@ class WindowsTap(Tap):
                 if b'' != rx: 
                     data = slipDriver.receive(rx) # A (possibly empty) list of decoded messages.    
                     for tx in data:
-                        ###print('[SERIAL-AZ] <<<', PrintHex(tx))
                         tx = AZ_MAC + MY_MAC + b'\x08\x00' + tx
-                        self.this.write(tx)                                
-            print('[SpipWrite] END') 
+                        self.this.write(tx)  
+                        ###print('[SERIAL-AZ] <<<', PrintHex(tx))                                                    
+            #print('[SpipWrite] END') 
             self.this.isSRunnig == False          
 
     def start(self, com_port):
         global MY_MAC
         self.serial = Serial(com_port, 921600) #  115200 3000000   
-        self.serial.timeout = 0
+        self.serial.timeout = 0.1
         self.serial.rtscts = True # RequestToSend
         #print('DEVICE MAC ADDRESS', PrintHex(MY_MAC))
         self.isSRunnig = True
@@ -394,17 +392,29 @@ class WindowsTap(Tap):
         self.SR.start()
         self.SW.start()
         time.sleep(0.1)
+
         if False == self.isSRunnig:
             print('[ERROR] START')
             exit(1)
-        print('--------------AZSPHERE--------------')
-        a = Azure()
-        a.get_dev_status()
-        a.get_dev_id()        
-        print('----------------DONE----------------')
+
+        try:    
+            print('--------------AZSPHERE--------------')
+            a = Azure()
+            a.get_dev_status()
+            a.get_dev_id()        
+            print('----------------DONE----------------')            
+        except:
+            print('----------------ERROR---------------')
+            pass
+
+        time.sleep(0.1) 
+        self.isSRunnig = False
+        time.sleep(0.2)
+        self.close()
+        #self.serial.write(b'\xC0\x00\x00\xC0')
+        self.serial.close()
         exit(0)
 
 t = WindowsTap('Tap')
 if None != t.create():
     t.start('COM27')
-#t.close()
