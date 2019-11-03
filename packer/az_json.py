@@ -69,16 +69,55 @@ def create_json(manifest, board, approot):
     set_default_value(manifest, 'Name', 'PROGRAM')
     set_default_value(manifest, 'ComponentId', str(uuid.uuid4()).upper())
     set_default_value(manifest, 'EntryPoint', '/bin/app')
-
-    #SAVE MANIFEST TO APPROOT
+    set_default_value(manifest, 'TargetApplicationRuntimeVersion', 3)
+    #"TargetBetaApis":"Beta1905"
+    
     #print(manifest)
 
     print('APPLICATION:', manifest['Name'], manifest['ComponentId'])
     return manifest
 
+def clean(path):
+    for c in os.listdir(path):
+        full_path = os.path.join(path, c)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+        else:
+            shutil.rmtree(full_path)
+    try: os.remove(path)     
+    except: pass  
+
+def create_approot_folder(path):
+    if True == os.path.isdir(path):
+        clean(path)
+    else:
+        os.makedirs(path)      
+
+def copy_files(approot, files):
+    for item in files:
+        copyfile(item, join(approot, os.path.basename(item)) ) 
 
 if __name__ == "__main__":
     DIR = os.path.dirname( sys.argv[0] )
-    APPROOT = join(DIR, 'approot')
-    MANIFEST = join(DIR, 'app_manifest.json')
-    create_json(MANIFEST, 'avnet_aesms_mt3620', APPROOT)
+
+    APPROOT     = join(DIR, 'test_approot')
+    MANIFEST    = join(DIR, 'app_manifest.json')
+    BOARD       = 'avnet_aesms_mt3620'
+    
+    SDK         = 3
+    BETA        = None
+    BIN         = 'app' # the elf name
+    FILES       = list() # path to files
+
+    create_approot_folder(APPROOT)
+    manifest = create_json(MANIFEST, BOARD, APPROOT)
+    os.makedirs( join(APPROOT, 'bin') ) 
+    
+    # COPY app to bin
+    #copy_files(join(APPROOT, 'bin'), app)
+    
+    # COPY other files
+    copy_files(APPROOT, FILES)
+
+    # SAVE MANIFEST
+    with open(join(APPROOT, 'app_manifest.json'), 'w+') as f: json.dump(manifest, f, indent=4)
